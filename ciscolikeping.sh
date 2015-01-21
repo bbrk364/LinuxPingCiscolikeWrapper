@@ -2,6 +2,15 @@
 #
 # Cisco-like ping wrapper by Igor_Y
 #
+# Intended for Linux ping unility.
+#
+# BSD ping utility (like in FreeBSD, MAC OS X or other BSD-like systems) is
+# supported partially:
+# "Destination Host Unreachable", "Packet filtered", "Time to live exceeded",
+# "Time to live exceeded", "Reply truncated" and "Source Quench" are not 
+# supported because of multiline output.
+# Some ping utilites may not be supported at all.
+#
 # Parsed ICMP messages:
 #64 bytes from 192.168.248.51: icmp_seq=1 ttl=128 time=0.547 ms
 #From 192.168.248.103 icmp_seq=1 Destination Host Unreachable
@@ -17,6 +26,7 @@
 
 echo "Legend:"
 echo " ! - Reply recieved			. - Reply lost"
+echo " u - Destination Host Unreachable	f - Packet filtered"
 echo " < - Reply sequence from the past	x - Time to live exceeded"
 echo " t - Reply truncated			q - Source Quench"
 echo ""
