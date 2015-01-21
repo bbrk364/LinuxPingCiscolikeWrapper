@@ -16,6 +16,7 @@
 #From 192.168.248.103 icmp_seq=1 Destination Host Unreachable
 #From 172.24.0.134 icmp_seq=8 Packet filtered
 #From 212.1.97.206 icmp_seq=1 Time to live exceeded
+#Request timeout for icmp_seq 159	<-- This is from BSD
 # Assuming that sequence conter is in sync
 #72 bytes from 172.26.22.10: icmp_seq=2 ttl=251 (truncated)
 #From 192.168.0.52: icmp_seq=9 Source Quench
@@ -55,6 +56,7 @@ num=$(expr "$line" : '^[0-9]\{1,\} bytes from .*: icmp_[rs]eq=\([0-9]\{1,\}\) tt
 unr=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Destination Host Unreachable$')
 fil=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Packet filtered$')
 ttl=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Time to live exceeded$')
+tmo=$(expr "$line" : '^Request timeout for icmp_seq \([0-9]\{1,\}\)$')
 # Assuming that sequence conter is in sync
 trc=$(expr "$line" : '^[0-9]\{1,\} bytes from .*: icmp_[rs]eq=\([0-9]\{1,\}\) ttl=[0-9]\{1,\} (truncated)$')
 qnc=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Source Quench$')
@@ -254,7 +256,8 @@ if [[ "$hst" || "$net" || "$fra" || "$ttl" || "$trc" || "$qnc" ]]
 fi
 
 # Displaying any lines that do not match preassigned filters.
-if [[ "$num" == "" && "$unr" == "" && "$fil" == "" && "$ttl" == "" && "$trc" == "" && "$qnc" == "" && "$hst" == "" && "$net" == "" && "$fra" == "" ]]
+# And silently dropping some BSD ping messages "Request timeout for icmp_seq".
+if [[ "$num" == "" && "$unr" == "" && "$fil" == "" && "$ttl" == "" && "$trc" == "" && "$qnc" == "" && "$hst" == "" && "$net" == "" && "$fra" == "" && "$tmo" == "" ]]
   then echo "$line"
   #else
     # Debug output
