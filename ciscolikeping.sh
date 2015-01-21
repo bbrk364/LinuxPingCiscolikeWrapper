@@ -4,7 +4,6 @@
 #
 # Parsed ICMP messages:
 #64 bytes from 192.168.248.51: icmp_seq=1 ttl=128 time=0.547 ms
-#64 bytes from 93.158.134.3: icmp_seq=4 ttl=54 time=21.312 ms	<-- mac os x
 #From 192.168.248.103 icmp_seq=1 Destination Host Unreachable
 #From 172.24.0.134 icmp_seq=8 Packet filtered
 #From 212.1.97.206 icmp_seq=1 Time to live exceeded
@@ -31,35 +30,42 @@ n=1
 count=1
 err=""
 param="$*"
-numpackets=$(expr "$param" : '.*-c \?\([0-9]*\).*')
-deadline=$(expr "$param" : '.*-w \?\([0-9]*\).*')
+numpackets=$(expr "$param" : '.*-c \{0,1\}\([0-9]*\).*')
+deadline=$(expr "$param" : '.*-w \{0,1\}\([0-9]*\).*')
+timeout=$(expr "$param" : '.*-t \{0,1\}\([0-9]*\).*')
 
-if [[ "$numpackets" == "" && "$deadline" == "" ]]; then param="-c 5 ${param}"; fi
+#echo "numpackets=$numpackets, deadline=$deadline, timeout=$timeout"
+
+if [[ "$numpackets" == "" && "$deadline" == "" && "$timeout" == "" ]]; then param="-c 5 ${param}"; fi
 
 while read line
 do
 # ICMP event detection
-#64 bytes from 192.168.248.51: icmp_seq=1 ttl=128 time=0.547 ms
-#64 bytes from 93.158.134.3: icmp_seq=4 ttl=54 time=21.312 ms   <-- mac os x
-num=$(expr "$line" : '^[0-9]\+ bytes from .*: icmp_[rs]eq=\([0-9]\+\) ttl=[0-9]\+ time=.*$')
-unr=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\+\) Destination Host Unreachable$')
-fil=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\+\) Packet filtered$')
-ttl=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\+\) Time to live exceeded$')
+num=$(expr "$line" : '^[0-9]\{1,\} bytes from .*: icmp_[rs]eq=\([0-9]\{1,\}\) ttl=[0-9]\{1,\} time=.*$')
+unr=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Destination Host Unreachable$')
+fil=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Packet filtered$')
+ttl=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Time to live exceeded$')
 # Assuming that sequence conter is in sync
-trc=$(expr "$line" : '^[0-9]\+ bytes from .*: icmp_[rs]eq=\([0-9]\+\) ttl=[0-9]\+ (truncated)$')
-qnc=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\+\) Source Quench$')
+trc=$(expr "$line" : '^[0-9]\{1,\} bytes from .*: icmp_[rs]eq=\([0-9]\{1,\}\) ttl=[0-9]\{1,\} (truncated)$')
+qnc=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Source Quench$')
 # Sequence counter is not in sync
-hst=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\+\) Redirect Host(New nexthop: .*)$')
-net=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\+\) Redirect Network(New nexthop: .*)$')
-fra=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\+\) Frag needed and DF set (mtu = .*)$')
+hst=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Redirect Host(New nexthop: .*)$')
+net=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Redirect Network(New nexthop: .*)$')
+fra=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Frag needed and DF set (mtu = .*)$')
 
 # Normal echo reply
 if [[ "$num" ]]
   then
     if [[ "$num" -lt "$n" ]]
       then
-        echo -n "<"
-        n=$(( n - 1 ))
+	# This check is needed bacause on MAC OS X icmp sequence starts from 0 whereas on linux it starts from 1
+	if [[ $num -eq 0 ]]
+	  then
+            n=$num
+          else
+            echo -n "<"
+            n=$(( n - 1 ))
+        fi
     fi
     if [[ "$num" -gt "$n" ]]
       then
