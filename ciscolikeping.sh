@@ -4,6 +4,7 @@
 #
 # Parsed ICMP messages:
 #64 bytes from 192.168.248.51: icmp_seq=1 ttl=128 time=0.547 ms
+#64 bytes from 93.158.134.3: icmp_seq=4 ttl=54 time=21.312 ms	<-- mac os x
 #From 192.168.248.103 icmp_seq=1 Destination Host Unreachable
 #From 172.24.0.134 icmp_seq=8 Packet filtered
 #From 212.1.97.206 icmp_seq=1 Time to live exceeded
@@ -38,6 +39,8 @@ if [[ "$numpackets" == "" && "$deadline" == "" ]]; then param="-c 5 ${param}"; f
 while read line
 do
 # ICMP event detection
+#64 bytes from 192.168.248.51: icmp_seq=1 ttl=128 time=0.547 ms
+#64 bytes from 93.158.134.3: icmp_seq=4 ttl=54 time=21.312 ms   <-- mac os x
 num=$(expr "$line" : '^[0-9]\+ bytes from .*: icmp_[rs]eq=\([0-9]\+\) ttl=[0-9]\+ time=.*$')
 unr=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\+\) Destination Host Unreachable$')
 fil=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\+\) Packet filtered$')
