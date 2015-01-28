@@ -52,18 +52,18 @@ if [[ "$numpackets" == "" && "$deadline" == "" && "$timeout" == "" ]]; then para
 while read line
 do
 # ICMP event detection
-num=$(expr "$line" : '^[0-9]\{1,\} bytes from .*: icmp_[rs]eq=\([0-9]\{1,\}\) ttl=[0-9]\{1,\} time=.*$')
-unr=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Destination Host Unreachable$')
-fil=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Packet filtered$')
-ttl=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Time to live exceeded$')
-tmo=$(expr "$line" : '^Request timeout for icmp_seq \([0-9]\{1,\}\)$')
+num=$(expr "$line" : '[0-9]\{1,\} bytes from .*: icmp_[rs]eq=\([0-9]\{1,\}\) ttl=[0-9]\{1,\} time=.*$')
+unr=$(expr "$line" : 'From .* icmp_[rs]eq=\([0-9]\{1,\}\) Destination Host Unreachable$')
+fil=$(expr "$line" : 'From .* icmp_[rs]eq=\([0-9]\{1,\}\) Packet filtered$')
+ttl=$(expr "$line" : 'From .* icmp_[rs]eq=\([0-9]\{1,\}\) Time to live exceeded$')
+tmo=$(expr "$line" : 'Request timeout for icmp_seq \([0-9]\{1,\}\)$')
 # Assuming that sequence conter is in sync
-trc=$(expr "$line" : '^[0-9]\{1,\} bytes from .*: icmp_[rs]eq=\([0-9]\{1,\}\) ttl=[0-9]\{1,\} (truncated)$')
-qnc=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Source Quench$')
+trc=$(expr "$line" : '[0-9]\{1,\} bytes from .*: icmp_[rs]eq=\([0-9]\{1,\}\) ttl=[0-9]\{1,\} (truncated)$')
+qnc=$(expr "$line" : 'From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Source Quench$')
 # Sequence counter is not in sync
-hst=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Redirect Host(New nexthop: .*)$')
-net=$(expr "$line" : '^From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Redirect Network(New nexthop: .*)$')
-fra=$(expr "$line" : '^From .* icmp_[rs]eq=\([0-9]\{1,\}\) Frag needed and DF set (mtu = .*)$')
+hst=$(expr "$line" : 'From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Redirect Host(New nexthop: .*)$')
+net=$(expr "$line" : 'From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Redirect Network(New nexthop: .*)$')
+fra=$(expr "$line" : 'From .* icmp_[rs]eq=\([0-9]\{1,\}\) Frag needed and DF set (mtu = .*)$')
 
 # Normal echo reply
 if [[ "$num" ]]
@@ -102,12 +102,6 @@ fi
 # Destination unreachable
 if [[ "$unr" ]]
   then
-#    # Do not know if this check is needed
-#    if [[ "$unr" -lt "$n" ]]
-#      then
-#        echo -n "<"
-#        n=$(( n - 1 ))
-#    fi
     if [[ "$unr" -gt "$n" ]]
       then
         dif=$(( unr - n ))	# let "dif=$unr-$n"
@@ -131,12 +125,6 @@ fi
 # Packet filtered
 if [[ "$fil" ]]
   then
-#    # Do not know if this check is needed
-#    if [[ "$fil" -lt "$n" ]]
-#      then
-#        echo -n "<"
-#        n=$(( n - 1 ))
-#    fi
     if [[ "$fil" -gt "$n" ]]
       then
         dif=$(( fil - n ))	# let "dif=$fil-$n"
@@ -160,12 +148,6 @@ fi
 # Time to live exceeded
 if [[ "$ttl" ]]
   then
-#    # Do not know if this check is needed
-#    if [[ "$ttl" -lt "$n" ]]
-#      then
-#        echo -n "<"
-#        n=$(( n - 1 ))
-#    fi
     if [[ "$ttl" -gt "$n" ]]
       then
         dif=$(( ttl - n ))	# let "dif=$ttl-$n"
@@ -189,12 +171,6 @@ fi
 # Echo reply is truncated
 if [[ "$trc" ]]
   then
-#    # Do not know if this check is needed
-#    if [[ "$trc" -lt "$n" ]]
-#      then
-#        echo -n "<"
-#        n=$(( n - 1 ))
-#    fi
     if [[ "$trc" -gt "$n" ]]
       then
         dif=$(( trc - n ))	# let "dif=$trc-$n"
@@ -218,12 +194,6 @@ fi
 # Source Quench
 if [[ "$qnc" ]]
   then
-#    # Do not know if this check is needed
-#    if [[ "$qnc" -lt "$n" ]]
-#      then
-#        echo -n "<"
-#        n=$(( n - 1 ))
-#    fi
     if [[ "$qnc" -gt "$n" ]]
       then
         dif=$(( qnc - n ))	# let "dif=$qnc-$n"
