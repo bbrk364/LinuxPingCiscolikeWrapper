@@ -117,7 +117,7 @@ if [[ "$unr" ]]
       then
         echo -n "u"
     fi
-    if (( count % 80 == 0 )); then echo ""; fi
+    if (( count % 80 == 0 )); then echo " $count"; fi
     (( n++ ))
     (( count++ ))
 fi
