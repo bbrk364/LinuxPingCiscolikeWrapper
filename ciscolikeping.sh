@@ -227,7 +227,8 @@ fi
 
 # Displaying any lines that do not match preassigned filters.
 # And silently dropping some BSD ping messages "Request timeout for icmp_seq".
-if [[ "$num" == "" && "$unr" == "" && "$fil" == "" && "$ttl" == "" && "$trc" == "" && "$qnc" == "" && "$hst" == "" && "$net" == "" && "$fra" == "" && "$tmo" == "" ]]
+if [[ "$num" == "" && "$unr" == "" && "$fil" == "" && "$ttl" == "" && "$trc" == "" && \
+      "$qnc" == "" && "$hst" == "" && "$net" == "" && "$fra" == "" && "$tmo" == "" ]]
   then echo "$line"
   #else
     # Debug output
