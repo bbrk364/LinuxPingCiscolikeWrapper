@@ -32,8 +32,6 @@ echo " < - Reply sequence from the past	x - Time to live exceeded"
 echo " t - Reply truncated			q - Source Quench"
 echo ""
 
-echo "Start: " `date "+%H:%M:%S %d/%m/%Y"`
-
 #trap 'echo -e "\nCatched SIGINT"' SIGINT
 trap '' SIGINT
 
@@ -48,6 +46,9 @@ timeout=$(expr "$param" : '.*-t \{0,1\}\([0-9]*\).*')
 #echo "numpackets=$numpackets, deadline=$deadline, timeout=$timeout"
 
 if [[ "$numpackets" == "" && "$deadline" == "" && "$timeout" == "" ]]; then param="-c 5 ${param}"; fi
+
+echo "ping $param"
+echo "Start: " `date "+%H:%M:%S %d/%m/%Y"`
 
 while read line
 do
