@@ -25,12 +25,6 @@
 #From 10.0.0.17: icmp_seq=2 Redirect Network(New nexthop: 10.0.0.23)
 #From 195.137.185.66 icmp_seq=2 Frag needed and DF set (mtu = 1460)
 
-echo "Legend:"
-echo " ! - Reply recieved			. - Reply lost"
-echo " u - Destination Host Unreachable	f - Packet filtered"
-echo " < - Reply sequence from the past	x - Time to live exceeded"
-echo " t - Reply truncated			q - Source Quench"
-echo ""
 
 #trap 'echo -e "\nCatched SIGINT"' SIGINT
 trap '' SIGINT
@@ -39,16 +33,53 @@ n=1
 count=1
 err=""
 param="$*"
-numpackets=$(expr "$param" : '.*-c \{0,1\}\([0-9]*\).*')
-deadline=$(expr "$param" : '.*-w \{0,1\}\([0-9]*\).*')
-timeout=$(expr "$param" : '.*-t \{0,1\}\([0-9]*\).*')
+numpackets=$(expr "$param" : '.* -c \{0,1\}\([0-9]*\).*')
+deadline=$(expr "$param" : '.* -w \{0,1\}\([0-9]*\).*')
+timeout=$(expr "$param" : '.* -t \{0,1\}\([0-9]*\).*')
+showlegend=$(expr "$param" : '.* \(--show-legend\).*')		# 13
+disablecounter=$(expr "$param" : '.* \(--disable-counter\).*')	# 17
+wrap=$(expr "$param" : '.* --wrap=\([0-9]\+\).*')
+neverending=$(expr "$param" : '.* \(--neverending\).*')		# 28
+#echo "$showlegend, $disablecounter, $wrap, $neverending"
+#echo "$param"
+
+# Setting wrap dafault to 80 if not specified
+if [[ "$wrap" == "" ]]; then wrap=80; fi
+#echo "$wrap"
+#echo ""
+
+# Removing custom parameters from ping command input string
+param=${param//--show-legend/}
+param=${param//--disable-counter/}
+param=${param//--wrap=$wrap/}
+param=${param//--neverending/}
+
+if [[ "$param" == "" ]]
+  then
+    echo "Additional parameters:"
+    echo -e " --show-legend\t\t- Shows the legend before pinging."
+    echo -e " --disable-counter\t- Disables counter at ping line wraps."
+    echo -e " --wrap=XX\t\t- Set number of symbols to wrap ping lines after (default 80)."
+    echo -e " --neverending\t\t- Set ping to wait for Ctrl+C instead of default 5 packets."
+    echo ""
+fi
+
+if [[ "$showlegend" == "--show-legend" || "$param" == "" ]]
+  then
+    echo "Legend:"
+    echo " ! - Reply recieved			. - Reply lost"
+    echo " u - Destination Host Unreachable	f - Packet filtered"
+    echo " < - Reply sequence from the past	x - Time to live exceeded"
+    echo " t - Reply truncated			q - Source Quench"
+    echo ""
+fi
 
 #echo "numpackets=$numpackets, deadline=$deadline, timeout=$timeout"
-
-if [[ "$numpackets" == "" && "$deadline" == "" && "$timeout" == "" ]]; then param="-c 5 ${param}"; fi
+if [[ "$numpackets" == "" && "$deadline" == "" && "$timeout" == "" && "$neverending" == "" ]]; then param="-c 5 ${param}"; fi
 
 echo "ping $param"
 echo "Start: " `date "+%H:%M:%S %d/%m/%Y"`
+echo ""
 
 while read line
 do
@@ -86,7 +117,15 @@ if [[ "$num" ]]
         for ((a=1; a <= dif ; a++))
         do
           echo -n "."
-          if (( count % 80 == 0 )); then echo " $count"; fi
+          if (( count % $wrap == 0 ))
+            then
+              if [[ "$disablecounter" == "" ]]
+                then
+                  echo " $count"
+                else
+                  echo ""
+              fi
+          fi
           (( n++ ))
           (( count++ ))
         done
@@ -95,7 +134,15 @@ if [[ "$num" ]]
       then
         echo -n "!"
     fi
-    if (( count % 80 == 0 )); then echo " $count"; fi
+    if (( count % $wrap == 0 ))
+      then
+        if [[ "$disablecounter" == "" ]]
+          then
+            echo " $count"
+          else
+            echo ""
+        fi
+    fi
     (( n++ ))
     (( count++ ))
 fi
@@ -109,16 +156,32 @@ if [[ "$unr" ]]
         for ((a=1; a <= dif ; a++))
         do
           echo -n "."
-            if (( count % 80 == 0 )); then echo " $count"; fi
-            (( n++ ))
-            (( count++ ))
+          if (( count % $wrap == 0 ))
+            then
+              if [[ "$disablecounter" == "" ]]
+                then
+                  echo " $count"
+                else
+                  echo ""
+              fi
+          fi
+          (( n++ ))
+          (( count++ ))
         done
     fi
     if [[ "$unr" -eq "$n" ]]
       then
         echo -n "u"
     fi
-    if (( count % 80 == 0 )); then echo " $count"; fi
+    if (( count % $wrap == 0 ))
+      then
+        if [[ "$disablecounter" == "" ]]
+          then
+            echo " $count"
+          else
+            echo ""
+        fi
+    fi
     (( n++ ))
     (( count++ ))
 fi
@@ -132,7 +195,15 @@ if [[ "$fil" ]]
         for ((a=1; a <= dif ; a++))
           do
             echo -n "."
-            if (( count % 80 == 0 )); then echo " $count"; fi
+            if (( count % $wrap == 0 ))
+              then
+                if [[ "$disablecounter" == "" ]]
+                  then
+                    echo " $count"
+                  else
+                    echo ""
+                fi
+            fi
             (( n++ ))
             (( count++ ))
           done
@@ -141,7 +212,15 @@ if [[ "$fil" ]]
       then
         echo -n "f"
     fi
-    if (( count % 80 == 0 )); then echo " $count"; fi
+    if (( count % $wrap == 0 ))
+      then
+        if [[ "$disablecounter" == "" ]]
+          then
+            echo " $count"
+          else
+            echo ""
+        fi
+    fi
     (( n++ ))
     (( count++ ))
 fi
@@ -155,7 +234,15 @@ if [[ "$ttl" ]]
         for ((a=1; a <= dif ; a++))
           do
             echo -n "."
-            if (( count % 80 == 0 )); then echo " $count"; fi
+            if (( count % $wrap == 0 ))
+              then
+                if [[ "$disablecounter" == "" ]]
+                  then
+                    echo " $count"
+                  else
+                    echo ""
+                fi
+            fi
             (( n++ ))
             (( count++ ))
           done
@@ -164,7 +251,15 @@ if [[ "$ttl" ]]
       then
         echo -n "x"
     fi
-    if (( count % 80 == 0 )); then echo " $count"; fi
+    if (( count % $wrap == 0 ))
+      then
+        if [[ "$disablecounter" == "" ]]
+          then
+            echo " $count"
+          else
+            echo ""
+        fi
+    fi
     (( n++ ))
     (( count++ ))
 fi
@@ -178,7 +273,15 @@ if [[ "$qnc" ]]
         for ((a=1; a <= dif ; a++))
           do
             echo -n "."
-            if (( count % 80 == 0 )); then echo " $count"; fi
+            if (( count % $wrap == 0 ))
+              then
+                if [[ "$disablecounter" == "" ]]
+                  then
+                    echo " $count"
+                  else
+                    echo ""
+                fi
+            fi
             (( n++ ))
             (( count++ ))
           done
@@ -187,7 +290,15 @@ if [[ "$qnc" ]]
       then
         echo -n "q"
     fi
-    if (( count % 80 == 0 )); then echo " $count"; fi
+    if (( count % $wrap == 0 ))
+      then
+        if [[ "$disablecounter" == "" ]]
+          then
+            echo " $count"
+          else
+            echo ""
+        fi
+    fi
     (( n++ ))
     (( count++ ))
 fi
