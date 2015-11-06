@@ -74,7 +74,7 @@ if [[ "$showlegend" == "--show-legend" || "$param" == "" ]]
     echo ""
 fi
 
-echo "numpackets=$numpackets, deadline=$deadline, timeout=$timeout"
+#echo "numpackets=$numpackets, deadline=$deadline, timeout=$timeout"
 if [[ "$numpackets" == "" && "$deadline" == "" && "$timeout" == "" && "$neverending" == "" && "$param" != "" ]]; then param="-c 5 ${param}"; fi
 
 echo "ping $param"
