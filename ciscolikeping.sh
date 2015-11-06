@@ -17,7 +17,7 @@
 #From 172.24.0.134 icmp_seq=8 Packet filtered
 #From 212.1.97.206 icmp_seq=1 Time to live exceeded
 #Request timeout for icmp_seq 159	<-- This is from BSD
-# Assuming that sequence conter is in sync
+# Assuming that sequence counter is in sync
 #From 192.168.0.52: icmp_seq=9 Source Quench
 # Sequence counter is not in sync
 #72 bytes from 172.26.22.10: icmp_seq=2 ttl=251 (truncated)
@@ -58,7 +58,7 @@ unr=$(expr "$line" : 'From .* icmp_[rs]eq=\([0-9]\{1,\}\) Destination Host Unrea
 fil=$(expr "$line" : 'From .* icmp_[rs]eq=\([0-9]\{1,\}\) Packet filtered$')
 ttl=$(expr "$line" : 'From .* icmp_[rs]eq=\([0-9]\{1,\}\) Time to live exceeded$')
 tmo=$(expr "$line" : 'Request timeout for icmp_seq \([0-9]\{1,\}\)$')
-# Assuming that sequence conter is in sync
+# Assuming that sequence counter is in sync
 qnc=$(expr "$line" : 'From .*: icmp_[rs]eq=\([0-9]\{1,\}\) Source Quench$')
 # Sequence counter is not in sync
 trc=$(expr "$line" : '[0-9]\{1,\} bytes from .*: icmp_[rs]eq=\([0-9]\{1,\}\) ttl=[0-9]\{1,\} (truncated)$')
