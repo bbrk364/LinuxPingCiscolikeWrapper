@@ -33,13 +33,13 @@ n=1
 count=1
 err=""
 param="$*"
-numpackets=$(expr "$param" : '.* -c \{0,1\}\([0-9]*\).*')
-deadline=$(expr "$param" : '.* -w \{0,1\}\([0-9]*\).*')
-timeout=$(expr "$param" : '.* -t \{0,1\}\([0-9]*\).*')
-showlegend=$(expr "$param" : '.* \(--show-legend\).*')		# 13
-disablecounter=$(expr "$param" : '.* \(--disable-counter\).*')	# 17
-wrap=$(expr "$param" : '.* --wrap=\([0-9]\+\).*')
-neverending=$(expr "$param" : '.* \(--neverending\).*')		# 28
+numpackets=$(expr "$param" : '.*\s\?-c \{0,1\}\([0-9]*\).*')
+deadline=$(expr "$param" : '.*\s\?-w \{0,1\}\([0-9]*\).*')
+timeout=$(expr "$param" : '.*\s\?-t \{0,1\}\([0-9]*\).*')
+showlegend=$(expr "$param" : '.*\s\?\(--show-legend\).*')		# 13
+disablecounter=$(expr "$param" : '.*\s\?\(--disable-counter\).*')	# 17
+wrap=$(expr "$param" : '.*\s\?--wrap=\([0-9]\+\).*')
+neverending=$(expr "$param" : '.*\s\?\(--neverending\).*')		# 28
 #echo "$showlegend, $disablecounter, $wrap, $neverending"
 #echo "$param"
 
@@ -74,8 +74,8 @@ if [[ "$showlegend" == "--show-legend" || "$param" == "" ]]
     echo ""
 fi
 
-#echo "numpackets=$numpackets, deadline=$deadline, timeout=$timeout"
-if [[ "$numpackets" == "" && "$deadline" == "" && "$timeout" == "" && "$neverending" == "" ]]; then param="-c 5 ${param}"; fi
+echo "numpackets=$numpackets, deadline=$deadline, timeout=$timeout"
+if [[ "$numpackets" == "" && "$deadline" == "" && "$timeout" == "" && "$neverending" == "" && "$param" != "" ]]; then param="-c 5 ${param}"; fi
 
 echo "ping $param"
 echo "Start: " `date "+%H:%M:%S %d/%m/%Y"`
